@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuryaTeja - Job Search Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Syne+Mono&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ink:#0c0c0d;--ink2:#1a1a1e;--ink3:#252529;
+  --paper:#f8f5ef;--paper2:#f0ece3;--paper3:#e8e3d8;
+  --gold:#b8860b;--gold2:#d4a017;--gold3:#f5c842;
+  --rust:#c0392b;--rust2:#e74c3c;
+  --sage:#2d6a4f;--sage2:#40916c;
+  --navy:#1a2744;--navy2:#2c3e6b;
+  --slate:#4a5568;--slate2:#718096;
+  --border:#d4cfc4;--border2:#c4bfb4;
+  --radius:8px;--radius2:4px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow2:0 2px 8px rgba(0,0,0,0.12), 0 8px 32px rgba(0,0,0,0.06);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:'Syne',sans-serif;font-size:14px;
+  min-height:100vh;
+}
+
+/* -- HEADER -- */
+header{
+  background:var(--ink);color:var(--paper);
+  padding:0 40px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+}
+.logo{font-size:18px;font-weight:800;letter-spacing:-0.5px}
+.logo span{color:var(--gold3)}
+.header-right{display:flex;align-items:center;gap:16px}
+.header-stat{font-family:'Syne Mono',monospace;font-size:11px;color:rgba(248,245,239,0.5);text-align:right}
+.header-stat strong{color:var(--gold3);font-size:15px;display:block}
+
+/* -- HERO SEARCH -- */
+.hero{
+  background:var(--ink2);
+  padding:48px 40px 40px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.hero-title{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(28px,4vw,44px);
+  color:var(--paper);
+  line-height:1.15;
+  margin-bottom:6px;
+}
+.hero-title em{color:var(--gold3);font-style:italic}
+.hero-sub{font-size:13px;color:rgba(248,245,239,0.45);margin-bottom:28px;font-family:'Syne Mono',monospace}
+
+.search-bar{
+  display:flex;gap:0;
+  background:var(--paper);
+  border-radius:var(--radius);
+  overflow:hidden;
+  box-shadow:var(--shadow2);
+  max-width:860px;
+}
+.search-input{
+  flex:1;border:none;outline:none;
+  padding:16px 20px;
+  font-family:'Syne',sans-serif;font-size:15px;
+  color:var(--ink);background:transparent;
+}
+.search-input::placeholder{color:var(--slate2)}
+.search-select{
+  border:none;border-left:1px solid var(--border);
+  outline:none;padding:0 16px;
+  font-family:'Syne',sans-serif;font-size:13px;
+  color:var(--ink);background:var(--paper2);
+  cursor:pointer;min-width:160px;
+}
+.search-btn{
+  background:var(--gold2);color:var(--ink);
+  border:none;padding:0 28px;
+  font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  cursor:pointer;transition:background .2s;
+  letter-spacing:0.5px;
+}
+.search-btn:hover{background:var(--gold3)}
+
+.role-chips{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.role-chip{
+  padding:7px 16px;border-radius:20px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;letter-spacing:0.3px;
+  border:1.5px solid rgba(255,255,255,0.15);
+  color:rgba(248,245,239,0.6);background:transparent;
+}
+.role-chip:hover{border-color:var(--gold3);color:var(--gold3)}
+.role-chip.active{background:var(--gold3);color:var(--ink);border-color:var(--gold3)}
+
+/* -- FILTERS BAR -- */
+.filters-bar{
+  background:var(--paper2);
+  border-bottom:1px solid var(--border);
+  padding:12px 40px;
+  display:flex;align-items:center;gap:16px;
+  flex-wrap:wrap;
+}
+.filter-label{font-size:11px;font-weight:700;color:var(--slate);letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.filter-chip{
+  padding:5px 12px;border-radius:20px;font-size:12px;
+  border:1px solid var(--border);cursor:pointer;
+  transition:all .15s;color:var(--slate);background:var(--paper);
+  font-weight:500;
+}
+.filter-chip.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.filter-chip:hover:not(.active){border-color:var(--ink);color:var(--ink)}
+.filter-divider{width:1px;height:24px;background:var(--border)}
+.results-count{margin-left:auto;font-family:'Syne Mono',monospace;font-size:12px;color:var(--slate2)}
+
+/* -- LAYOUT -- */
+.content{display:grid;grid-template-columns:280px 1fr;gap:0;min-height:calc(100vh - 160px)}
+
+/* -- SIDEBAR -- */
+.sidebar{
+  background:var(--paper);
+  border-right:1px solid var(--border);
+  padding:24px 20px;
+  height:calc(100vh - 128px);
+  overflow-y:auto;
+  position:sticky;top:64px;
+}
+.sidebar-section{margin-bottom:24px}
+.sidebar-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate2);margin-bottom:12px}
+.sidebar-option{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:7px 10px;border-radius:var(--radius2);cursor:pointer;
+  transition:background .15s;font-size:13px;color:var(--ink);
+}
+.sidebar-option:hover{background:var(--paper2)}
+.sidebar-option input[type=checkbox]{accent-color:var(--ink);cursor:pointer}
+.sidebar-badge{font-family:'Syne Mono',monospace;font-size:10px;color:var(--slate2);background:var(--paper3);padding:2px 7px;border-radius:10px}
+.salary-range{display:flex;flex-direction:column;gap:8px}
+.salary-slider{width:100%;accent-color:var(--ink)}
+.salary-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--slate2);font-family:'Syne Mono',monospace}
+
+/* -- JOB LISTINGS -- */
+.listings{padding:24px 28px;overflow-y:auto}
+.listings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sort-select{border:1px solid var(--border);border-radius:var(--radius2);padding:6px 12px;font-family:'Syne',sans-serif;font-size:12px;color:var(--ink);background:var(--paper);cursor:pointer;outline:none}
+
+.job-card{
+  background:var(--paper);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:22px 24px;
+  margin-bottom:12px;
+  cursor:pointer;
+  transition:all .2s;
+  position:relative;
+  overflow:hidden;
+}
+.job-card:hover{border-color:var(--ink);box-shadow:var(--shadow)}
+.job-card.featured{border-color:var(--gold2);background:linear-gradient(135deg,#fffdf5 0%,var(--paper) 100%)}
+.job-card.featured::before{content:'FEATURED';position:absolute;top:12px;right:12px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--gold2);background:rgba(212,160,23,0.1);padding:3px 8px;border-radius:3px;border:1px solid rgba(212,160,23,0.3)}
+.job-card.new-badge::after{content:'NEW';position:absolute;top:12px;right:12px;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--sage2);background:rgba(64,145,108,0.1);padding:3px 8px;border-radius:3px;border:1px solid rgba(64,145,108,0.3)}
+
+.job-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.company-logo{
+  width:44px;height:44px;border-radius:var(--radius2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:800;flex-shrink:0;
+  background:var(--ink3);color:var(--paper);
+  font-family:'Syne',sans-serif;
+}
+.job-info{flex:1}
+.job-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:3px;line-height:1.3}
+.company-name{font-size:13px;color:var(--slate);font-weight:500}
+.job-meta{display:flex;gap:14px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.meta-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--slate2);font-family:'Syne Mono',monospace}
+.meta-dot{width:3px;height:3px;border-radius:50%;background:var(--border2)}
+
+.job-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.job-tag{
+  font-size:11px;padding:3px 9px;border-radius:3px;
+  font-family:'Syne Mono',monospace;font-weight:500;
+}
+.tag-match{background:rgba(26,39,68,0.08);color:var(--navy);border:1px solid rgba(26,39,68,0.15)}
+.tag-skill{background:var(--paper2);color:var(--slate);border:1px solid var(--border)}
+.tag-role{background:rgba(184,134,11,0.1);color:var(--gold);border:1px solid rgba(184,134,11,0.2)}
+
+.job-footer{display:flex;align-items:center;justify-content:space-between}
+.match-score{display:flex;align-items:center;gap:8px}
+.match-bar-wrap{width:80px;height:4px;background:var(--paper3);border-radius:2px;overflow:hidden}
+.match-bar-fill{height:100%;border-radius:2px;background:var(--sage2)}
+.match-label{font-size:11px;font-family:'Syne Mono',monospace;color:var(--sage2);font-weight:600}
+.salary-tag{font-size:12px;font-weight:700;color:var(--ink);font-family:'Syne Mono',monospace}
+.apply-btn{
+  background:var(--ink);color:var(--paper);
+  border:none;padding:8px 18px;border-radius:var(--radius2);
+  font-family:'Syne',sans-serif;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;letter-spacing:0.3px;
+}
+.apply-btn:hover{background:var(--navy)}
+.save-btn{
+  background:transparent;border:1px solid var(--border);
+  color:var(--slate);padding:8px 14px;border-radius:var(--radius2);
+  font-size:12px;cursor:pointer;transition:all .2s;
+}
+.save-btn:hover{border-color:var(--gold2);color:var(--gold)}
+.save-btn.saved{border-color:var(--gold2);color:var(--gold2);background:rgba(212,160,23,0.06)}
+
+/* -- JOB DETAIL PANEL -- */
+.detail-overlay{
+  position:fixed;inset:0;background:rgba(12,12,13,0.5);
+  z-index:200;display:none;align-items:flex-start;justify-content:flex-end;
+}
+.detail-overlay.open{display:flex}
+.detail-panel{
+  width:min(560px,100vw);height:100vh;
+  background:var(--paper);overflow-y:auto;
+  box-shadow:-8px 0 32px rgba(0,0,0,0.15);
+  animation:slideIn .25s ease;
+}
+@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+.detail-header{
+  background:var(--ink2);color:var(--paper);
+  padding:24px 28px;position:sticky;top:0;
+  display:flex;align-items:flex-start;gap:14px;
+}
+.detail-close{
+  margin-left:auto;background:none;border:none;
+  color:rgba(248,245,239,0.5);font-size:22px;cursor:pointer;
+  padding:0 4px;line-height:1;
+}
+.detail-close:hover{color:var(--paper)}
+.detail-body{padding:28px}
+.detail-section{margin-bottom:24px}
+.detail-section-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--slate2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.detail-section p,.detail-section li{font-size:13px;color:var(--slate);line-height:1.8}
+.detail-section ul{padding-left:16px}
+.detail-section li{margin-bottom:4px}
+.detail-actions{display:flex;gap:10px;padding:20px 28px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--paper)}
+.btn-apply{background:var(--ink);color:var(--paper);border:none;padding:12px 28px;border-radius:var(--radius2);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;flex:1;transition:background .2s}
+.btn-apply:hover{background:var(--navy)}
+.btn-save{background:transparent;border:1px solid var(--border);color:var(--ink);padding:12px 20px;border-radius:var(--radius2);font-size:13px;cursor:pointer;transition:all .2s}
+.btn-save:hover{border-color:var(--gold2);color:var(--gold)}
+.match-big{display:flex;align-items:center;gap:12px;background:rgba(64,145,108,0.08);border:1px solid rgba(64,145,108,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px}
+.match-big-score{font-family:'Instrument Serif',serif;font-size:36px;color:var(--sage2);line-height:1}
+.match-big-text{font-size:12px;color:var(--sage);line-height:1.6}
+
+/* -- EMPTY STATE -- */
+.empty-state{text-align:center;padding:80px 40px;color:var(--slate2)}
+.empty-state-icon{font-size:48px;margin-bottom:16px;display:block}
+.empty-state h3{font-family:'Instrument Serif',serif;font-size:22px;color:var(--ink);margin-bottom:8px}
+.empty-state p{font-size:13px;line-height:1.7}
+
+/* -- TOAST -- */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s ease;box-shadow:var(--shadow2)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.gold{background:var(--gold2);color:var(--ink)}
+
+/* -- SCROLLBAR -- */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--paper2)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* -- LOADING -- */
+.skeleton{background:linear-gradient(90deg,var(--paper2) 25%,var(--paper3) 50%,var(--paper2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius2);height:14px;margin-bottom:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+@media(max-width:900px){
+  .content{grid-template-columns:1fr}
+  .sidebar{display:none}
+  header{padding:0 20px}
+  .hero{padding:32px 20px}
+  .listings{padding:16px}
+  .filters-bar{padding:10px 16px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Surya<span>Jobs</span></div>
+  <div class="header-right">
+    <div class="header-stat"><strong id="h-applied">0</strong>Applied Today</div>
+    <div class="header-stat"><strong id="h-saved">0</strong>Saved</div>
+    <div class="header-stat"><strong id="h-total">0</strong>Total Applied</div>
+  </div>
+</header>
+
+<!-- HERO SEARCH -->
+<div class="hero">
+  <h1 class="hero-title">Find your next role,<br><em>SuryaTeja.</em></h1>
+  <p class="hero-sub">// 4+ yrs · Java · Python · Spring Boot · React · Azure · Data</p>
+
+  <div class="search-bar">
+    <input class="search-input" id="search-input" placeholder="Search job title, company, or skill..." oninput="filterJobs()" />
+    <select class="search-select" id="location-filter" onchange="filterJobs()">
+      <option value="">All Locations</option>
+      <option value="remote">Remote</option>
+      <option value="hybrid">Hybrid</option>
+      <option value="onsite">On-site</option>
+      <option value="tx">Texas</option>
+      <option value="ca">California</option>
+      <option value="ny">New York</option>
+    </select>
+    <button class="search-btn" onclick="filterJobs()">SEARCH</button>
+  </div>
+
+  <div class="role-chips" id="role-chips">
+    <div class="role-chip active" onclick="selectRole(this,'all')">All Roles</div>
+    <div class="role-chip" onclick="selectRole(this,'fullstack')">Full Stack Java</div>
+    <div class="role-chip" onclick="selectRole(this,'analyst')">Data Analyst</div>
+    <div class="role-chip" onclick="selectRole(this,'python')">Python Developer</div>
+    <div class="role-chip" onclick="selectRole(this,'backend')">Backend Engineer</div>
+  </div>
+</div>
+
+<!-- FILTERS BAR -->
+<div class="filters-bar">
+  <span class="filter-label">Experience</span>
+  <div class="filter-chip active" onclick="toggleFilter(this,'exp','all')">Any</div>
+  <div class="filter-chip" onclick="toggleFilter(this,'exp','entry')">Entry (0-2 yrs)</div>
+  <div class="filter-chip" onclick="toggleFilter(this,'exp','mid')">Mid (3-5 yrs)</div>
+  <div class="filter-chip" onclick="toggleFilter(this,'exp','senior')">Senior (5+ yrs)</div>
+  <div class="filter-divider"></div>
+  <span class="filter-label">Type</span>
+  <div class="filter-chip active" onclick="toggleFilter(this,'type','all')">Any</div>
+  <div class="filter-chip" onclick="toggleFilter(this,'type','fulltime')">Full-time</div>
+  <div class="filter-chip" onclick="toggleFilter(this,'type','contract')">Contract</div>
+  <div class="filter-divider"></div>
+  <span class="filter-label">Posted</span>
+  <div class="filter-chip active" onclick="toggleFilter(this,'posted','all')">Any time</div>
+  <div class="filter-chip" onclick="toggleFilter(this,'posted','today')">Today</div>
+  <div class="filter-chip" onclick="toggleFilter(this,'posted','week')">This week</div>
+  <span class="results-count" id="results-count">0 jobs</span>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-title">Match Score</div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> 90%+ match</label><span class="sidebar-badge" id="cnt-90">0</span></div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> 75-90%</label><span class="sidebar-badge" id="cnt-75">0</span></div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Below 75%</label><span class="sidebar-badge" id="cnt-low">0</span></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Salary Range</div>
+      <div class="salary-range">
+        <input type="range" class="salary-slider" min="60" max="200" value="60" id="salary-min" oninput="updateSalary()">
+        <div class="salary-labels">
+          <span>$<span id="sal-min">60</span>k</span>
+          <span>$<span id="sal-max">200</span>k+</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Skills Required</div>
+      <div id="skill-filters">
+        <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Java / Spring Boot</label></div>
+        <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Python</label></div>
+        <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> React / Angular</label></div>
+        <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> AWS / Azure</label></div>
+        <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Docker / Kubernetes</label></div>
+        <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> SQL / Databases</label></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Applied Status</div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Not Applied</label></div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" onchange="filterJobs()"> Applied</label></div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" onchange="filterJobs()"> Saved</label></div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">Company Size</div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Startup (1-200)</label></div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Mid (200-2K)</label></div>
+      <div class="sidebar-option"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" checked onchange="filterJobs()"> Enterprise (2K+)</label></div>
+    </div>
+  </div>
+
+  <!-- JOB LISTINGS -->
+  <div class="listings" id="listings">
+    <div class="listings-header">
+      <div style="font-size:13px;font-weight:600;color:var(--ink)" id="listing-title">All Roles</div>
+      <select class="sort-select" onchange="sortJobs(this.value)">
+        <option value="match">Sort: Best Match</option>
+        <option value="date">Sort: Newest</option>
+        <option value="salary">Sort: Highest Salary</option>
+      </select>
+    </div>
+    <div id="jobs-container"></div>
+  </div>
+</div>
+
+<!-- JOB DETAIL PANEL -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-header" id="detail-header"></div>
+    <div class="detail-body" id="detail-body"></div>
+    <div class="detail-actions" id="detail-actions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// -- DATA --
+var savedJobs = JSON.parse(localStorage.getItem('sj_saved') || '[]');
+var appliedJobs = JSON.parse(localStorage.getItem('sj_applied') || '[]');
+var activeRole = 'all';
+var activeFilters = { exp:'all', type:'all', posted:'all' };
+
+var jobs = [
+  // -- FULL STACK JAVA --
+  { id:1, title:'Senior Full Stack Java Developer', company:'Sabre Corporation', logo:'S', color:'#1a2744', role:'fullstack', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'today', salary:'$110k-$140k', salaryNum:125, match:96, featured:true, isNew:true,
+    skills:['Java','Spring Boot','React.js','Microservices','AWS','Docker','Kafka','REST APIs'],
+    matchSkills:['Java','Spring Boot','React.js','AWS'],
+    desc:'Build and maintain enterprise-grade travel booking platform microservices. Work across the full stack with Java backend and React frontend.',
+    responsibilities:['Design and implement RESTful APIs using Spring Boot','Build responsive React.js frontends','Manage Docker/Kubernetes deployments','Collaborate with data teams on Kafka integrations'],
+    requirements:['4+ years Java/Spring Boot','React or Angular experience','Microservices architecture knowledge','AWS or Azure cloud experience'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Senior+Full+Stack+Java+Developer&f_C=Sabre+Corporation' },
+
+  { id:2, title:'Full Stack Java Engineer', company:'Dell Technologies', logo:'D', color:'#007db8', role:'fullstack', location:'Austin, TX', locType:'hybrid', exp:'mid', type:'fulltime', posted:'today', salary:'$105k-$135k', salaryNum:120, match:94, featured:false, isNew:true,
+    skills:['Java','Spring MVC','Angular','Hibernate','Kubernetes','Jenkins','PostgreSQL'],
+    matchSkills:['Java','Spring MVC','Angular','Kubernetes'],
+    desc:'Join Dell\'s enterprise software team to build scalable internal tools and customer-facing platforms.',
+    responsibilities:['Develop J2EE applications using Spring MVC and Hibernate','Build Angular frontends','Configure CI/CD pipelines with Jenkins','Design data models in PostgreSQL and Snowflake'],
+    requirements:['3-6 years Java development','Angular or React','REST API design','CI/CD experience'],
+    source:'Indeed', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Full+Stack+Java+Engineer+Dell+Technologies' },
+
+  { id:3, title:'Java Backend Developer', company:'American Airlines', logo:'A', color:'#c0392b', role:'fullstack', location:'Fort Worth, TX', locType:'hybrid', exp:'mid', type:'fulltime', posted:'week', salary:'$100k-$130k', salaryNum:115, match:90, featured:false, isNew:false,
+    skills:['Java','Spring Boot','Oracle DB','REST APIs','Agile','Maven'],
+    matchSkills:['Java','Spring Boot','REST APIs'],
+    desc:'Build and maintain flight operations systems using Java microservices architecture.',
+    responsibilities:['Develop microservices using Spring Boot','Design and optimize Oracle database queries','Build and consume REST APIs','Participate in Agile sprints'],
+    requirements:['4+ years Java','Spring Boot microservices','Oracle or SQL Server','REST API experience'],
+    source:'Dice', applyUrl:'https://www.dice.com/jobs?q=Java+Backend+Developer+American+Airlines' },
+
+  { id:4, title:'Full Stack Software Engineer (Java/React)', company:'Nue.ai', logo:'N', color:'#6c3483', role:'fullstack', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'today', salary:'$115k-$145k', salaryNum:130, match:92, featured:true, isNew:true,
+    skills:['Java','Spring Boot','React','TypeScript','AWS','MongoDB','Kafka'],
+    matchSkills:['Java','Spring Boot','React','AWS'],
+    desc:'Join a fast-growing AI revenue platform startup. Build core product features from end to end.',
+    responsibilities:['Build full stack features with Java backend and React frontend','Design scalable cloud architecture on AWS','Integrate with third-party APIs','Work directly with founders in a startup environment'],
+    requirements:['4+ years full stack Java','React or Vue','AWS cloud','Startup mindset'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Full+Stack+Software+Engineer+Java+React+Nue.ai' },
+
+  { id:5, title:'Senior Java Developer', company:'PNC Bank', logo:'P', color:'#f26522', role:'fullstack', location:'Pittsburgh, PA (Remote)', locType:'remote', exp:'senior', type:'fulltime', posted:'week', salary:'$120k-$155k', salaryNum:137, match:88, featured:false, isNew:false,
+    skills:['Java','Spring Boot','Spring Security','Microservices','Kafka','Docker','AWS'],
+    matchSkills:['Java','Spring Boot','Spring Security','Docker'],
+    desc:'Develop banking platform microservices and APIs for retail and commercial banking operations.',
+    responsibilities:['Architect secure Java microservices','Implement Spring Security for auth','Build Kafka event-driven pipelines','Deploy on AWS with Docker/Kubernetes'],
+    requirements:['5+ years Java','Spring Security experience','Kafka or messaging systems','Financial industry preferred'],
+    source:'Company Site', applyUrl:'https://www.pnc.com/en/about-pnc/careers.html' },
+
+  // -- DATA ANALYST --
+  { id:6, title:'Data Analyst - Python & SQL', company:'American Express', logo:'A', color:'#006fcf', role:'analyst', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'today', salary:'$95k-$120k', salaryNum:107, match:95, featured:true, isNew:true,
+    skills:['Python','SQL','Pandas','Tableau','Excel','Statistics','PowerBI'],
+    matchSkills:['Python','SQL','Pandas'],
+    desc:'Analyze customer spending patterns and build dashboards to support business decisions across AmEx product lines.',
+    responsibilities:['Analyze large datasets using Python and SQL','Build Tableau and PowerBI dashboards','Present insights to stakeholders','Develop automated reporting pipelines'],
+    requirements:['3+ years data analysis','Python (Pandas, NumPy)','SQL proficiency','Visualization tools (Tableau/PowerBI)'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Data+Analyst+Python+SQL+American+Express' },
+
+  { id:7, title:'Business Data Analyst', company:'AT&T', logo:'A', color:'#00a8e0', role:'analyst', location:'Dallas, TX', locType:'hybrid', exp:'mid', type:'fulltime', posted:'today', salary:'$90k-$115k', salaryNum:102, match:91, featured:false, isNew:true,
+    skills:['Python','SQL','Pandas','Plotly','Dash','Azure','Spark'],
+    matchSkills:['Python','Pandas','Plotly','Dash','Azure'],
+    desc:'Support business intelligence operations with data pipelines, dashboards, and ad-hoc analysis.',
+    responsibilities:['Build Plotly/Dash dashboards for KPI tracking','Write Python ETL scripts','Create Azure data pipelines','Support leadership with data-driven insights'],
+    requirements:['3+ years data analysis','Python and SQL','Azure experience a plus','Strong communication skills'],
+    source:'Indeed', applyUrl:'https://www.indeed.com/jobs?q=Business+Data+Analyst+Python&l=Dallas%2C+TX&sc=0kf%3Acmp(ATT)%3B' },
+
+  { id:8, title:'Senior Data Analyst', company:'JPMorgan Chase', logo:'J', color:'#003087', role:'analyst', location:'New York, NY (Remote)', locType:'remote', exp:'senior', type:'fulltime', posted:'week', salary:'$110k-$140k', salaryNum:125, match:87, featured:false, isNew:false,
+    skills:['Python','SQL','PySpark','Tableau','Snowflake','Machine Learning','Statistics'],
+    matchSkills:['Python','PySpark','Snowflake'],
+    desc:'Join the consumer banking analytics team to surface actionable insights from transaction data.',
+    responsibilities:['Develop PySpark data pipelines','Build predictive models using Scikit-Learn','Create executive dashboards in Tableau','Partner with product teams on A/B testing'],
+    requirements:['4+ years data analysis','PySpark or Spark','Snowflake or BigQuery','ML model experience preferred'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Senior+Data+Analyst+JPMorgan+Chase' },
+
+  { id:9, title:'Data Analyst - Investment Analytics', company:'BlackRock', logo:'B', color:'#000000', role:'analyst', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'week', salary:'$100k-$130k', salaryNum:115, match:93, featured:true, isNew:false,
+    skills:['Python','SQL','Pandas','Plotly','Flask','Financial Data','REST APIs'],
+    matchSkills:['Python','Pandas','Plotly','Flask','REST APIs'],
+    desc:'Build investment data analytics platforms and dashboards for portfolio management teams.',
+    responsibilities:['Develop Python analytics pipelines for financial data','Build Plotly/Flask dashboards','Integrate with market data APIs','Create automated daily reports'],
+    requirements:['3+ years Python data analysis','Financial data experience preferred','REST API experience','Plotly/Dash or similar'],
+    source:'Company Site', applyUrl:'https://careers.blackrock.com/job-search-results/?keyword=Data+Analyst+Python' },
+
+  // -- PYTHON DEVELOPER --
+  { id:10, title:'Python Developer - Data Pipelines', company:'Snowflake', logo:'S', color:'#29b5e8', role:'python', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'today', salary:'$120k-$155k', salaryNum:137, match:94, featured:true, isNew:true,
+    skills:['Python','Snowflake','PySpark','dbt','Airflow','SQL','AWS'],
+    matchSkills:['Python','Snowflake','PySpark'],
+    desc:'Build and maintain data pipelines that power Snowflake\'s internal analytics infrastructure.',
+    responsibilities:['Develop Python ETL/ELT pipelines','Manage Snowflake data models with dbt','Orchestrate workflows with Airflow','Optimize query performance'],
+    requirements:['4+ years Python','Snowflake or BigQuery','PySpark experience','Data pipeline design'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Python+Developer+Data+Pipelines+Snowflake' },
+
+  { id:11, title:'Python Backend Developer', company:'Stripe', logo:'S', color:'#635bff', role:'python', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'today', salary:'$130k-$165k', salaryNum:147, match:89, featured:false, isNew:true,
+    skills:['Python','FastAPI','PostgreSQL','Redis','Docker','AWS','REST APIs'],
+    matchSkills:['Python','FastAPI','PostgreSQL','Docker'],
+    desc:'Build payment infrastructure APIs and internal tooling at Stripe.',
+    responsibilities:['Develop FastAPI microservices','Design PostgreSQL schemas','Build and maintain REST APIs','Work with Docker and AWS'],
+    requirements:['4+ years Python','FastAPI or Django','PostgreSQL','Microservices experience'],
+    source:'Company Site', applyUrl:'https://stripe.com/jobs/search?name=Python' },
+
+  { id:12, title:'Python Data Engineer', company:'Databricks', logo:'D', color:'#ff3621', role:'python', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'week', salary:'$125k-$160k', salaryNum:142, match:91, featured:false, isNew:false,
+    skills:['Python','PySpark','Spark SQL','Delta Lake','Kafka','Azure','Scala'],
+    matchSkills:['Python','PySpark','Spark SQL','Kafka','Azure'],
+    desc:'Build the data infrastructure that powers Databricks lakehouse platform.',
+    responsibilities:['Develop PySpark data transformation pipelines','Work with Delta Lake architecture','Build Kafka streaming pipelines','Optimize Spark SQL queries'],
+    requirements:['3+ years Python','PySpark expertise','Kafka experience','Azure or AWS'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Python+Data+Engineer+Databricks' },
+
+  { id:13, title:'Senior Python Developer - ML Platform', company:'Sabre Corporation', logo:'S', color:'#1a2744', role:'python', location:'Dallas, TX', locType:'hybrid', exp:'senior', type:'fulltime', posted:'today', salary:'$115k-$145k', salaryNum:130, match:96, featured:true, isNew:true,
+    skills:['Python','PySpark','Scikit-Learn','Flask','Azure','Autosys','Docker','Pandas'],
+    matchSkills:['Python','PySpark','Scikit-Learn','Flask','Azure','Autosys'],
+    desc:'Lead Python development for travel industry ML platforms and data analytics.',
+    responsibilities:['Build ML pipelines using Python and Scikit-Learn','Develop Flask APIs for model serving','Automate workflows with Autosys','Build Azure data pipelines with PySpark'],
+    requirements:['5+ years Python','ML model development','Azure cloud','Autosys or similar schedulers'],
+    source:'Dice', applyUrl:'https://www.dice.com/jobs?q=Senior+Python+Developer+ML+Sabre' },
+
+  // -- BACKEND ENGINEER --
+  { id:14, title:'Backend Engineer - Java/Spring', company:'Uber', logo:'U', color:'#000000', role:'backend', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'today', salary:'$140k-$175k', salaryNum:157, match:88, featured:false, isNew:true,
+    skills:['Java','Spring Boot','Kafka','Kubernetes','PostgreSQL','Redis','gRPC'],
+    matchSkills:['Java','Spring Boot','Kafka','Kubernetes'],
+    desc:'Build ride-matching and pricing backend services at massive scale.',
+    responsibilities:['Design high-throughput Java microservices','Build Kafka event-driven architectures','Optimize PostgreSQL database performance','Work with Kubernetes at scale'],
+    requirements:['5+ years Java backend','Kafka or RabbitMQ','Kubernetes','High-scale system design'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Backend+Engineer+Java+Spring+Uber' },
+
+  { id:15, title:'Backend Software Engineer', company:'Twilio', logo:'T', color:'#f22f46', role:'backend', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'today', salary:'$125k-$160k', salaryNum:142, match:86, featured:false, isNew:true,
+    skills:['Java','Python','Spring Boot','REST APIs','AWS','PostgreSQL','Docker'],
+    matchSkills:['Java','Python','Spring Boot','REST APIs','AWS'],
+    desc:'Build communications platform APIs used by millions of developers worldwide.',
+    responsibilities:['Design and build scalable REST APIs','Work with Java and Python backends','Deploy on AWS with Docker','Build developer-facing API documentation'],
+    requirements:['4+ years backend development','Java and/or Python','REST API design','AWS experience'],
+    source:'Company Site', applyUrl:'https://www.twilio.com/en-us/company/jobs?q=backend' },
+
+  { id:16, title:'Senior Backend Engineer - Python', company:'Airbnb', logo:'A', color:'#ff5a5f', role:'backend', location:'Remote', locType:'remote', exp:'senior', type:'fulltime', posted:'week', salary:'$150k-$190k', salaryNum:170, match:84, featured:false, isNew:false,
+    skills:['Python','Django','PostgreSQL','Redis','Kafka','AWS','Kubernetes'],
+    matchSkills:['Python','PostgreSQL','Kafka','AWS'],
+    desc:'Build search, recommendations, and booking backend systems at scale.',
+    responsibilities:['Develop Python/Django backend services','Design distributed data systems','Build Kafka event streaming pipelines','Optimize PostgreSQL at scale'],
+    requirements:['5+ years Python backend','Django or FastAPI','Distributed systems','AWS Kubernetes'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Senior+Backend+Engineer+Python+Airbnb' },
+
+  { id:17, title:'Backend Engineer - Data Systems', company:'LinkedIn', logo:'L', color:'#0077b5', role:'backend', location:'Remote', locType:'remote', exp:'mid', type:'fulltime', posted:'week', salary:'$130k-$165k', salaryNum:147, match:90, featured:true, isNew:false,
+    skills:['Java','Spring Boot','Kafka','Hadoop','Spark','REST APIs','Azure'],
+    matchSkills:['Java','Spring Boot','Kafka','Spark','Azure'],
+    desc:'Build backend data systems powering LinkedIn\'s feed, search, and analytics.',
+    responsibilities:['Develop Java data processing services','Build Kafka streaming pipelines','Work with Spark for batch processing','Design scalable REST APIs'],
+    requirements:['4+ years Java backend','Kafka streaming','Spark/Hadoop','REST API design'],
+    source:'Company Site', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Backend+Engineer+Data+Systems+LinkedIn' },
+
+
+  // -- ENTRY LEVEL --
+  { id:19, title:'Junior Full Stack Java Developer', company:'Accenture', logo:'A', color:'#a100ff', role:'fullstack', location:'Remote', locType:'remote', exp:'entry', type:'fulltime', posted:'today', salary:'$70k-$90k', salaryNum:80, match:88, featured:false, isNew:true,
+    skills:['Java','Spring Boot','HTML/CSS','JavaScript','SQL','Git','REST APIs'],
+    matchSkills:['Java','Spring Boot','REST APIs'],
+    desc:'Join Accenture\'s graduate program as a junior full stack developer. Training provided for first 3 months.',
+    responsibilities:['Build Java Spring Boot microservices under senior guidance','Develop frontend components','Write unit tests with JUnit','Participate in Agile standups'],
+    requirements:['0-2 years Java experience','CS degree or bootcamp','Basic Spring Boot knowledge','Willingness to learn'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Junior+Full+Stack+Java+Developer+Accenture' },
+
+  { id:20, title:'Junior Data Analyst', company:'Deloitte', logo:'D', color:'#86bc25', role:'analyst', location:'Dallas, TX', locType:'hybrid', exp:'entry', type:'fulltime', posted:'today', salary:'$65k-$85k', salaryNum:75, match:85, featured:false, isNew:true,
+    skills:['Python','SQL','Excel','Tableau','Statistics','PowerBI'],
+    matchSkills:['Python','SQL'],
+    desc:'Start your data analytics career at Deloitte. You will work with senior analysts on client data projects.',
+    responsibilities:['Clean and analyze datasets using Python and SQL','Build Excel and Tableau dashboards','Support senior analysts on client deliverables','Write data documentation'],
+    requirements:['0-2 years experience','Python and SQL basics','Excel proficiency','Statistics knowledge'],
+    source:'Indeed', applyUrl:'https://www.indeed.com/jobs?q=Junior+Data+Analyst+Python+Deloitte' },
+
+  { id:21, title:'Associate Python Developer', company:'Cognizant', logo:'C', color:'#1589c8', role:'python', location:'Remote', locType:'remote', exp:'entry', type:'fulltime', posted:'today', salary:'$68k-$88k', salaryNum:78, match:86, featured:false, isNew:true,
+    skills:['Python','SQL','REST APIs','Git','Django','Linux'],
+    matchSkills:['Python','SQL','REST APIs'],
+    desc:'Entry-level Python developer role with full mentorship and a structured career growth plan.',
+    responsibilities:['Develop Python scripts and automation tools','Build and consume REST APIs','Write unit tests','Collaborate with senior developers'],
+    requirements:['0-2 years Python experience','Basic REST API knowledge','Git version control','SQL basics'],
+    source:'Dice', applyUrl:'https://www.dice.com/jobs?q=Associate+Python+Developer+Cognizant' },
+
+  { id:22, title:'Junior Backend Engineer', company:'Infosys', logo:'I', color:'#007cc3', role:'backend', location:'Remote', locType:'remote', exp:'entry', type:'fulltime', posted:'today', salary:'$65k-$82k', salaryNum:73, match:84, featured:false, isNew:true,
+    skills:['Java','Spring Boot','SQL','Git','REST APIs','Agile'],
+    matchSkills:['Java','Spring Boot','SQL'],
+    desc:'Launch your backend engineering career with Infosys. Structured mentorship and training program included.',
+    responsibilities:['Develop Java backend services with Spring Boot','Write REST APIs under senior guidance','Debug and fix backend issues','Participate in code reviews'],
+    requirements:['0-2 years Java experience','Spring Boot basics','SQL knowledge','CS or Engineering degree'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Junior+Backend+Engineer+Java+Infosys' },
+
+  { id:23, title:'Data Analyst Intern -> Full Time', company:'Capital One', logo:'C', color:'#cc0000', role:'analyst', location:'Remote', locType:'remote', exp:'entry', type:'fulltime', posted:'week', salary:'$72k-$92k', salaryNum:82, match:87, featured:true, isNew:false,
+    skills:['Python','SQL','Pandas','Tableau','Statistics','Excel','PowerBI'],
+    matchSkills:['Python','SQL','Pandas'],
+    desc:'Capital One\'s new grad / early career data analyst program. Direct conversion from intern to full-time.',
+    responsibilities:['Analyze credit card and banking datasets','Build Python data pipelines','Create Tableau dashboards','Present findings to stakeholders'],
+    requirements:['0-2 years experience','Python and Pandas','SQL proficiency','Statistics coursework'],
+    source:'Company Site', applyUrl:'https://www.capitalonecareers.com/search-jobs?k=Data+Analyst+Python' },
+
+  { id:24, title:'Graduate Software Engineer (Java)', company:'IBM', logo:'I', color:'#1f70c1', role:'fullstack', location:'Remote', locType:'remote', exp:'entry', type:'fulltime', posted:'week', salary:'$75k-$95k', salaryNum:85, match:89, featured:false, isNew:false,
+    skills:['Java','Spring Boot','REST APIs','Docker','SQL','Git','Agile'],
+    matchSkills:['Java','Spring Boot','REST APIs','Docker'],
+    desc:'IBM\'s graduate software engineer program. 6-month structured onboarding with mentorship from senior engineers.',
+    responsibilities:['Build Java microservices with Spring Boot','Learn Docker and Kubernetes basics','Contribute to REST API development','Participate in agile ceremonies'],
+    requirements:['0-2 years Java','CS degree or equivalent','Spring Boot basics','Eager to learn cloud'],
+    source:'LinkedIn', applyUrl:'https://www.linkedin.com/jobs/search/?keywords=Graduate+Software+Engineer+Java+IBM' },
+
+  { id:25, title:'Entry Level Python / Data Engineer', company:'Wipro', logo:'W', color:'#341c64', role:'python', location:'Remote', locType:'remote', exp:'entry', type:'fulltime', posted:'today', salary:'$65k-$80k', salaryNum:72, match:83, featured:false, isNew:true,
+    skills:['Python','SQL','Pandas','ETL','Linux','Git'],
+    matchSkills:['Python','SQL','Pandas'],
+    desc:'Join Wipro\'s data engineering team and build ETL pipelines under senior guidance.',
+    responsibilities:['Write Python ETL scripts','Query and analyze SQL databases','Support data migration projects','Document data pipelines'],
+    requirements:['0-2 years experience','Python basics','SQL knowledge','Willingness to learn ETL tools'],
+    source:'Dice', applyUrl:'https://www.dice.com/jobs?q=Entry+Level+Python+Data+Engineer+Wipro' },
+  { id:18, title:'Java Backend Developer - FinTech', company:'Visa', logo:'V', color:'#1434cb', role:'backend', location:'Austin, TX', locType:'hybrid', exp:'mid', type:'fulltime', posted:'today', salary:'$115k-$145k', salaryNum:130, match:92, featured:false, isNew:true,
+    skills:['Java','Spring Boot','Microservices','Oracle','Kafka','Docker','REST APIs'],
+    matchSkills:['Java','Spring Boot','Microservices','Kafka','Docker'],
+    desc:'Build payment processing backend services handling billions of transactions.',
+    responsibilities:['Develop Spring Boot payment microservices','Design Oracle database schemas','Build Kafka event processing','Deploy Docker containers'],
+    requirements:['4+ years Java','Spring Boot microservices','Oracle or PostgreSQL','Financial systems preferred'],
+    source:'Indeed', applyUrl:'https://www.indeed.com/jobs?q=Java+Backend+Developer+FinTech+Visa' },
+];
+
+var filteredJobs = [...jobs];
+
+// -- ROLE SELECTOR --
+function selectRole(el, role) {
+  document.querySelectorAll('.role-chip').forEach(function(c){ c.classList.remove('active'); });
+  el.classList.add('active');
+  activeRole = role;
+  filterJobs();
+}
+
+// -- FILTER TOGGLE --
+function toggleFilter(el, type, val) {
+  var siblings = el.parentElement.querySelectorAll('.filter-chip');
+  siblings.forEach(function(s){ s.classList.remove('active'); });
+  el.classList.add('active');
+  activeFilters[type] = val;
+  filterJobs();
+}
+
+// -- SALARY --
+function updateSalary() {
+  var val = document.getElementById('salary-min').value;
+  document.getElementById('sal-min').textContent = val;
+  filterJobs();
+}
+
+// -- MAIN FILTER --
+function filterJobs() {
+  var query = document.getElementById('search-input').value.toLowerCase().trim();
+  var locFilter = document.getElementById('location-filter').value;
+  var salMin = parseInt(document.getElementById('salary-min').value) || 60;
+
+  filteredJobs = jobs.filter(function(j) {
+    if (activeRole !== 'all' && j.role !== activeRole) return false;
+    if (locFilter && !j.locType.includes(locFilter) && !j.location.toLowerCase().includes(locFilter)) return false;
+    if (activeFilters.exp !== 'all' && j.exp !== activeFilters.exp) return false;
+    if (activeFilters.type !== 'all' && j.type !== activeFilters.type) return false;
+    if (activeFilters.posted !== 'all') {
+      if (activeFilters.posted === 'today' && j.posted !== 'today') return false;
+      if (activeFilters.posted === 'week' && !['today','week'].includes(j.posted)) return false;
+    }
+    if (j.salaryNum < salMin) return false;
+    if (query && !j.title.toLowerCase().includes(query) && !j.company.toLowerCase().includes(query) && !j.skills.some(function(s){ return s.toLowerCase().includes(query); })) return false;
+    return true;
+  });
+
+  renderJobs();
+  updateSidebarCounts();
+}
+
+// -- SORT --
+function sortJobs(by) {
+  if (by === 'match') filteredJobs.sort(function(a,b){ return b.match - a.match; });
+  else if (by === 'date') filteredJobs.sort(function(a,b){ return a.posted === 'today' ? -1 : 1; });
+  else if (by === 'salary') filteredJobs.sort(function(a,b){ return b.salaryNum - a.salaryNum; });
+  renderJobs();
+}
+
+// -- RENDER --
+function renderJobs() {
+  var container = document.getElementById('jobs-container');
+  document.getElementById('results-count').textContent = filteredJobs.length + ' jobs found';
+
+  var roleLabels = { all:'All Roles', fullstack:'Full Stack Java', analyst:'Data Analyst', python:'Python Developer', backend:'Backend Engineer' };
+  document.getElementById('listing-title').textContent = roleLabels[activeRole] || 'All Roles';
+
+  if (!filteredJobs.length) {
+    container.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🔍</span><h3>No jobs match your filters</h3><p>Try adjusting your search or filters to see more results</p></div>';
+    return;
+  }
+
+  container.innerHTML = filteredJobs.map(function(job) {
+    var isApplied = appliedJobs.includes(job.id);
+    var isSaved = savedJobs.includes(job.id);
+    var badgeClass = job.featured ? 'featured' : job.isNew ? 'new-badge' : '';
+
+    return '<div class="job-card ' + badgeClass + '" id="jcard-' + job.id + '" onclick="openDetail(' + job.id + ')">'
+      + '<div class="job-top">'
+      + '<div class="company-logo" style="background:' + job.color + '">' + job.logo + '</div>'
+      + '<div class="job-info">'
+      + '<div class="job-title">' + job.title + '</div>'
+      + '<div class="company-name">' + job.company + '</div>'
+      + '<div class="job-meta">'
+      + '<span class="meta-item">📍 ' + job.location + '</span>'
+      + '<span class="meta-item">💼 ' + job.type + '</span>'
+      + '<span class="meta-item">🕐 ' + (job.posted === 'today' ? 'Today' : 'This week') + '</span>'
+      + (isApplied ? '<span class="meta-item" style="color:var(--sage2)">✅ Applied</span>' : '')
+      + '</div></div></div>'
+      + '<div class="job-tags">'
+      + job.matchSkills.map(function(s){ return '<span class="job-tag tag-match">✓ ' + s + '</span>'; }).join('')
+      + job.skills.filter(function(s){ return !job.matchSkills.includes(s); }).slice(0,3).map(function(s){ return '<span class="job-tag tag-skill">' + s + '</span>'; }).join('')
+      + '<span class="job-tag tag-role">' + ({fullstack:'Full Stack',analyst:'Data Analyst',python:'Python Dev',backend:'Backend'}[job.role]) + '</span>'
+      + '</div>'
+      + '<div class="job-footer">'
+      + '<div class="match-score">'
+      + '<div class="match-bar-wrap"><div class="match-bar-fill" style="width:' + job.match + '%"></div></div>'
+      + '<span class="match-label">' + job.match + '% match</span>'
+      + '</div>'
+      + '<span class="salary-tag">' + job.salary + '</span>'
+      + '<div style="display:flex;gap:8px" onclick="event.stopPropagation()">'
+      + '<button class="save-btn ' + (isSaved ? 'saved' : '') + '" onclick="toggleSave(' + job.id + ')">' + (isSaved ? '★ Saved' : '☆ Save') + '</button>'
+      + '<button class="apply-btn" onclick="markApplied(' + job.id + ',\'' + job.applyUrl + '\')">' + (isApplied ? '✓ Applied' : 'Apply ->') + '</button>'
+      + '</div></div></div>';
+  }).join('');
+}
+
+// -- DETAIL PANEL --
+function openDetail(id) {
+  var job = jobs.find(function(j){ return j.id === id; });
+  if (!job) return;
+
+  var isApplied = appliedJobs.includes(job.id);
+  var isSaved = savedJobs.includes(job.id);
+
+  document.getElementById('detail-header').innerHTML =
+    '<div class="company-logo" style="background:' + job.color + ';width:52px;height:52px;font-size:22px">' + job.logo + '</div>'
+    + '<div style="flex:1"><div style="font-size:18px;font-weight:700;line-height:1.3">' + job.title + '</div>'
+    + '<div style="font-size:13px;color:rgba(248,245,239,0.6);margin-top:3px">' + job.company + ' · ' + job.location + '</div></div>'
+    + '<button class="detail-close" onclick="document.getElementById(\'detail-overlay\').classList.remove(\'open\')">×</button>';
+
+  document.getElementById('detail-body').innerHTML =
+    '<div class="match-big">'
+    + '<div class="match-big-score">' + job.match + '%</div>'
+    + '<div class="match-big-text"><strong style="color:var(--sage)">Strong match</strong><br>Your Java, Python & data skills align with ' + job.matchSkills.length + ' of ' + job.skills.length + ' required skills</div>'
+    + '</div>'
+
+    + '<div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap">'
+    + '<span class="job-tag tag-match" style="font-size:12px">💰 ' + job.salary + '</span>'
+    + '<span class="job-tag tag-skill" style="font-size:12px">📍 ' + job.location + '</span>'
+    + '<span class="job-tag tag-skill" style="font-size:12px">💼 ' + job.type + '</span>'
+    + '<span class="job-tag tag-skill" style="font-size:12px">🕐 Posted ' + job.posted + '</span>'
+    + '<span class="job-tag tag-role" style="font-size:12px">🔗 ' + job.source + '</span>'
+    + '</div>'
+
+    + '<div class="detail-section"><div class="detail-section-title">About the Role</div><p>' + job.desc + '</p></div>'
+
+    + '<div class="detail-section"><div class="detail-section-title">Skills Match</div>'
+    + '<div style="margin-bottom:10px"><div style="font-size:11px;color:var(--sage2);font-family:Syne Mono,monospace;margin-bottom:6px">YOU HAVE</div>'
+    + '<div>' + job.matchSkills.map(function(s){ return '<span class="job-tag tag-match" style="font-size:11px">✓ '+s+'</span>'; }).join('') + '</div></div>'
+    + '<div><div style="font-size:11px;color:var(--slate2);font-family:Syne Mono,monospace;margin-bottom:6px">ALSO REQUIRED</div>'
+    + '<div>' + job.skills.filter(function(s){ return !job.matchSkills.includes(s); }).map(function(s){ return '<span class="job-tag tag-skill" style="font-size:11px">'+s+'</span>'; }).join('') + '</div></div></div>'
+
+    + '<div class="detail-section"><div class="detail-section-title">Responsibilities</div><ul>'
+    + job.responsibilities.map(function(r){ return '<li>'+r+'</li>'; }).join('')
+    + '</ul></div>'
+
+    + '<div class="detail-section"><div class="detail-section-title">Requirements</div><ul>'
+    + job.requirements.map(function(r){ return '<li>'+r+'</li>'; }).join('')
+    + '</ul></div>';
+
+  document.getElementById('detail-actions').innerHTML =
+    '<button class="btn-apply" onclick="markApplied(' + job.id + ',\'' + job.applyUrl + '\')">'
+    + (isApplied ? '✅ Already Applied' : '🔍 Search on ' + job.source + ' ->') + '</button>'
+    + '<button class="btn-save" onclick="toggleSave(' + job.id + ')">' + (isSaved ? '★ Saved' : '☆ Save') + '</button>';
+
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail(e) {
+  if (e.target === document.getElementById('detail-overlay')) {
+    document.getElementById('detail-overlay').classList.remove('open');
+  }
+}
+
+// -- APPLY --
+function markApplied(id, url) {
+  if (!appliedJobs.includes(id)) {
+    appliedJobs.push(id);
+    localStorage.setItem('sj_applied', JSON.stringify(appliedJobs));
+
+    // Also save to toolkit application tracker format
+    var job = jobs.find(function(j){ return j.id === id; });
+    if (job) {
+      var existingApps = JSON.parse(localStorage.getItem('stk_apps') || '[]');
+      existingApps.unshift({
+        id: Date.now(),
+        company: job.company,
+        role: job.title,
+        source: job.source,
+        date: new Date().toISOString().split('T')[0],
+        status: '📤 Applied',
+        followup: ''
+      });
+      localStorage.setItem('stk_apps', JSON.stringify(existingApps));
+    }
+
+    showToast('✅ Marked as applied! Saved to your tracker.', 'gold');
+    window.open(url, '_blank');
+  } else {
+    showToast('Already in your application tracker');
+  }
+  updateHeaderStats();
+  renderJobs();
+}
+
+// -- SAVE --
+function toggleSave(id) {
+  if (savedJobs.includes(id)) {
+    savedJobs = savedJobs.filter(function(s){ return s !== id; });
+    showToast('Removed from saved');
+  } else {
+    savedJobs.push(id);
+    showToast('★ Job saved!', 'gold');
+  }
+  localStorage.setItem('sj_saved', JSON.stringify(savedJobs));
+  updateHeaderStats();
+  renderJobs();
+}
+
+// -- SIDEBAR COUNTS --
+function updateSidebarCounts() {
+  var high = filteredJobs.filter(function(j){ return j.match >= 90; }).length;
+  var mid = filteredJobs.filter(function(j){ return j.match >= 75 && j.match < 90; }).length;
+  var low = filteredJobs.filter(function(j){ return j.match < 75; }).length;
+  document.getElementById('cnt-90').textContent = high;
+  document.getElementById('cnt-75').textContent = mid;
+  document.getElementById('cnt-low').textContent = low;
+}
+
+// -- HEADER STATS --
+function updateHeaderStats() {
+  var today = new Date().toISOString().split('T')[0];
+  var apps = JSON.parse(localStorage.getItem('stk_apps') || '[]');
+  var todayCount = apps.filter(function(a){ return a.date === today; }).length;
+  document.getElementById('h-applied').textContent = todayCount;
+  document.getElementById('h-saved').textContent = savedJobs.length;
+  document.getElementById('h-total').textContent = appliedJobs.length;
+}
+
+// -- TOAST --
+function showToast(msg, type) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'gold' ? ' gold' : '');
+  setTimeout(function(){ t.className = 'toast'; }, 2500);
+}
+
+// -- INIT --
+filterJobs();
+updateHeaderStats();
+</script>
+</body>
+</html>
